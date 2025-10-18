@@ -1,6 +1,3 @@
-// ❗This is an example of a User Model. 
-// TODO: Please make sure you edit the User model to whatever makes sense in your project.
-
 const { Schema, model } = require("mongoose");
 
 const userSchema = new Schema(
@@ -15,7 +12,23 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: [true, 'Password is required.']
+    },
+    username: {
+      type: String,
+      required: [true, 'Username is required.'],
+      unique: true,
+      trim: true
+    },
+    photo: {
+      type: String,
+      default: "https://res.cloudinary.com/dinaognbb/image/upload/v1749822599/fotouser_f9vrur.png",
+    },
+    favorites: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Ad"
     }
+  ]
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`    
