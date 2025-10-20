@@ -3,7 +3,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 
 const Payment = require("../models/Payment.model.js")
-const Ad = require("../models/Ad.model");
+const Accommodation = require("../models/Accommodation.model");
 
 // ... routes
 
@@ -13,7 +13,7 @@ router.post("/create-payment-intent", async (req, res, next) => {
 
   try {
     // TODO . this is where you will later get the correct price to be paid
-    const product = await Ad.findById(productId)
+    const product = await Accommodation.findById(productId)
     const paymentIntent = await stripe.paymentIntents.create({
       amount: product.cost * 100, // this is an example for an amount of 14 EUR used for testing.
       currency: "eur",
@@ -29,7 +29,7 @@ router.post("/create-payment-intent", async (req, res, next) => {
       status: "incomplete",
       paymentIntentId: paymentIntent.id,
       clientSecret: paymentIntent.client_secret,
-      // buyer: req.payload // example to add who bought the product (not done in this example)
+      buyer: req.payload // example to add who bought the product (not done in this example)
     });
 
     res.send({

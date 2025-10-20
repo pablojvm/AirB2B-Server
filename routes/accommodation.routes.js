@@ -1,11 +1,11 @@
 const router = require("express").Router();
 
-const Ad = require("../models/Ad.model");
+const Accommodation = require("../models/Accommodation.model");
 
 router.get("/", async(req, res,next) => {
   try {
     const city = req.query.city
-    const response = await Ad.find({city})
+    const response = await Accommodation.find({city})
     res.json(response)
   } catch (error) {
     next(error)
@@ -15,18 +15,18 @@ router.get("/", async(req, res,next) => {
 router.get("/own", async(req, res,next) => {
    const objectId  = req.query.objectId
   try {
-    const response = await Ad.find({owner:objectId})
+    const response = await Accommodation.find({owner:objectId})
     res.json(response)
   } catch (error) {
     next(error)
   }
 });
 
-router.get("/:adId", async(req, res,next) => {
+router.get("/:accommodationId", async(req, res,next) => {
  
   try {
     console.log(req.params)
-    const response = await Ad.findById(req.params.adId)
+    const response = await Accommodation.findById(req.params.accommodationId)
     .populate("owner")
     res.json(response)
   } catch (error) {
@@ -36,7 +36,7 @@ router.get("/:adId", async(req, res,next) => {
 
 router.post("/", async (req, res, next) => {
   try {
-    const response = await Ad.create({
+    const response = await Accommodation.create({
       title: req.body.title,
       type: req.body.type,
       beds: req.body.beds,
@@ -57,9 +57,9 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.patch("/:adId", async(req, res, next) =>{
+router.patch("/:accommodationId", async(req, res, next) =>{
   try {
-    const response = await Ad.findByIdAndUpdate(req.params.adId, {
+    const response = await Accommodation.findByIdAndUpdate(req.params.accommodationId, {
       title: req.body.title,
       type: req.body.type,
       beds: req.body.beds,
@@ -79,9 +79,9 @@ router.patch("/:adId", async(req, res, next) =>{
   }
 })
 
-router.delete("/:adId", async (req, res,next) => {
+router.delete("/:accommodationId", async (req, res,next) => {
   try {
-    await Ad.findByIdAndDelete(req.params.adId)
+    await Accommodation.findByIdAndDelete(req.params.accommodationId)
     res.send("Anuncio borrado")
   } catch (error) {
     next(error)
