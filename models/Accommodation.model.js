@@ -5,7 +5,27 @@ const accommodationSchema = new Schema(
     title: String,
     type: {
         type: String,
-        enum:[]
+        enum:[
+    "Apartment",
+    "House",
+    "Villa",
+    "Cottage",
+    "Studio",
+    "Loft",
+    "Bungalow",
+    "Cabin",
+    "Guesthouse",
+    "Hostel",
+    "Hotel",
+    "Resort",
+    "Bed and Breakfast",
+    "Farm stay",
+    "Tiny house",
+    "Boat",
+    "Treehouse",
+    "Castle",
+    "Camper/RV"
+  ]
     },
     beds: Number,
     bedrooms: Number,
@@ -13,7 +33,36 @@ const accommodationSchema = new Schema(
     livingroom: Number,
     services: {
         type: String,
-        enum: []
+        enum: [
+      "Wi-Fi",
+      "Air conditioning",
+      "Heating",
+      "TV",
+      "Washer",
+      "Dryer",
+      "Kitchen",
+      "Essentials",
+      "Private bathroom",
+      "Hair dryer",
+      "Shampoo",
+      "Towels",
+      "Bed linens",
+      "Iron",
+      "Parking",
+      "Pool",
+      "Gym",
+      "Hot tub",
+      "Balcony",
+      "Garden",
+      "BBQ grill",
+      "Fireplace",
+      "Pet friendly",
+      "Smoke detector",
+      "First aid kit",
+      "Workspace",
+      "Breakfast included",
+      "24h check-in"
+    ]
     },
     cost: {
       type: Number,

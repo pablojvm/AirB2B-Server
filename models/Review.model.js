@@ -20,9 +20,9 @@ const reviewSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    ad: {
+    accommodation: {
       type: Schema.Types.ObjectId,
-      ref: "Ad",
+      ref: "Accommodation",
     },
   },
   {

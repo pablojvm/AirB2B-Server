@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const accommodationRouter = require("./accommodation.routes")
-router.use("/ad", accommodationRouter)
+router.use("/accommodation", accommodationRouter)
 
 const reviewRouter = require("./review.routes")
 router.use("/review", reviewRouter)

@@ -17,7 +17,8 @@ router.patch("/profile",verifyToken, async(req, res, next) =>{
     const response = await User.findByIdAndUpdate(req.payload._id, {
      username: req.body.username,
      email: req.body.email,
-     photo: req.body.photo
+     photo: req.body.photo,
+     number: req.body.number
     })
     res.json(response).send("Perfil actualizado")
   } catch (error) {

@@ -3,7 +3,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 
 const Payment = require("../models/Payment.model.js")
-const Accommodation = require("../models/Accommodation.model");
+const Accommodation = require("../models/Accommodation.model.js");
 
 // ... routes
 

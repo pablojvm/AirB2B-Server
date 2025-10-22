@@ -11,7 +11,7 @@ router.post(("/"), async(req, res,next) => {
       text: req.body.text,
       stars: req.body.stars,
       creator: req.body.creator,
-      ad: req.body.ad
+      accommodation: req.body.accommodation
     })
     res.json(response)
   } catch (error) {
@@ -51,11 +51,11 @@ router.get("/own", verifyToken, async (req, res, next) => {
   }
 });
 
-router.get("/:adId", async(req, res,next) => {
+router.get("/:accommodationId", async(req, res,next) => {
   console.log(req.params)
   try {
-    const { adId } = req.params;
-    const response = await Review.find({ ad: adId })
+    const { accommodationId } = req.params;
+    const response = await Review.find({ accommodation: accommodationId })
     .populate("creator")
     res.json(response)
   } catch (error) {

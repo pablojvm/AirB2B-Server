@@ -1,6 +1,6 @@
 const router = require("express").Router();
 
-const uploader = require("../middlewares/upload.middleware")
+const uploader = require("../middlewares/upload.middlewares")
 
 
 router.post("/", uploader.single("image"), (req, res, next) => {

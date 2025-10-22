@@ -1,16 +1,70 @@
 const router = require("express").Router();
-
 const Accommodation = require("../models/Accommodation.model");
+const User = require ("../models/User.model")
+const verifyToken = require("../middlewares/auth.middlewares")
 
-router.get("/", async(req, res,next) => {
+router.get("/byRating", async (req, res, next) => {
   try {
-    const city = req.query.city
-    const response = await Accommodation.find({city})
-    res.json(response)
+    const accommodations = await Accommodation.aggregate([
+      {
+        $lookup: {
+          from: "reviews", // nombre de la colección de reviews
+          localField: "_id",
+          foreignField: "accommodation",
+          as: "reviews"
+        }
+      },
+      {
+        $addFields: {
+          avgRating: { $avg: "$reviews.stars" }
+        }
+      },
+      {
+        $sort: { avgRating: -1 } // de mayor a menor puntuación
+      }
+    ]);
+
+    res.json(accommodations);
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
+
+router.get("/favorites", verifyToken, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select("favorites");
+    if (!user) return res.status(404).json({ message: "Debes identificarte primero" });
+
+    if (!user.favorites.length) return res.json([]);
+
+    const favorites = await Accommodation.find({ _id: { $in: user.favorites } });
+    res.json(favorites);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/randomCity", async (req, res, next) => {
+  try {
+    const randomCityDoc = await Accommodation.aggregate([
+      { $match: { city: { $ne: null } } },
+      { $sample: { size: 1 } },
+      { $project: { city: 1, _id: 0 } },
+    ]);
+
+    if (!randomCityDoc.length) {
+      return res.status(404).json({ message: "No hay alojamientos con ciudad" });
+    }
+
+    const randomCity = randomCityDoc[0].city;
+    const accommodations = await Accommodation.find({ city: randomCity });
+
+    res.json({ city: randomCity, accommodations });
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 router.get("/own", async(req, res,next) => {
    const objectId  = req.query.objectId
