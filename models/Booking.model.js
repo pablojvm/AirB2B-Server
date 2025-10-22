@@ -2,29 +2,31 @@ const { Schema, model } = require("mongoose");
 
 const bookingSchema = new Schema(
   {
-    accommodation: [
-    {
+    accommodation: {
       type: Schema.Types.ObjectId,
-      ref: "Accommodation"
-    }
-  ],
-    user: [
-    {
+      ref: "Accommodation",
+      required: true
+    },
+    user: {
       type: Schema.Types.ObjectId,
-      ref: "User"
-    }
-  ],
-    start: Date,
-    end: Date,
+      ref: "User",
+      required: true
+    },
+    start: {
+      type: Date,
+      required: true
+    },
+    end: {
+      type: Date,
+      required: true
+    },
     status: {
-        type: String,
-        enum: ["confirmed", "pending", "cancelled"]
+      type: String,
+      enum: ["confirmed", "pending", "cancelled"],
+      default: "pending"
     }
   },
-  {
-    // this second object adds extra properties: `createdAt` and `updatedAt`
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Booking = model("Booking", bookingSchema);

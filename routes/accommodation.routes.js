@@ -1,7 +1,35 @@
 const router = require("express").Router();
 const Accommodation = require("../models/Accommodation.model");
 const User = require ("../models/User.model")
+const Booking = require("../models/Booking.model")
 const verifyToken = require("../middlewares/auth.middlewares")
+
+
+router.get("/popular", async (req, res, next) => {
+  try {
+    const popularAccommodations = await Booking.aggregate([
+      { $unwind: "$accommodation" },
+      { $group: { _id: "$accommodation", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "accommodations",
+          localField: "_id",
+          foreignField: "_id",
+          as: "accommodationData"
+        }
+      },
+      { $unwind: "$accommodationData" },
+      { $replaceRoot: { newRoot: "$accommodationData" } }
+    ]);
+
+    res.json(popularAccommodations); // <-- devuelve un array directamente
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 router.get("/byRating", async (req, res, next) => {
   try {
