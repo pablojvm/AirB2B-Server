@@ -24,7 +24,7 @@ router.get("/popular", async (req, res, next) => {
       { $replaceRoot: { newRoot: "$accommodationData" } }
     ]);
 
-    res.json(popularAccommodations); // <-- devuelve un array directamente
+    res.json(popularAccommodations);
   } catch (err) {
     next(err);
   }
@@ -60,31 +60,105 @@ router.get("/byRating", async (req, res, next) => {
 
 router.get("/favorites", verifyToken, async (req, res, next) => {
   try {
+    if (!req.user?._id) return res.status(401).json({ message: "Debes iniciar sesión" });
+
     const user = await User.findById(req.user._id).select("favorites");
-    if (!user) return res.status(404).json({ message: "Debes identificarte primero" });
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
-    if (!user.favorites.length) return res.json([]);
+    const favoritesIds = user.favorites || [];
+    if (!favoritesIds.length) return res.json([]);
 
-    const favorites = await Accommodation.find({ _id: { $in: user.favorites } });
+    const favorites = await Accommodation.find({ _id: { $in: favoritesIds } });
     res.json(favorites);
   } catch (error) {
-    next(error);
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener favoritos", error });
   }
 });
 
-router.get("/randomCity", async (req, res, next) => {
+router.post("/favorites/:accommodationId", verifyToken, async (req, res, next) => {
   try {
-    const randomCityDoc = await Accommodation.aggregate([
-      { $match: { city: { $ne: null } } },
-      { $sample: { size: 1 } },
-      { $project: { city: 1, _id: 0 } },
-    ]);
+    const userId = req.user?._id;
+    const accommodationId = req.params.accommodationId;
 
-    if (!randomCityDoc.length) {
-      return res.status(404).json({ message: "No hay alojamientos con ciudad" });
+    // 1️⃣ Comprobar si el usuario está autenticado
+    if (!userId) {
+      return res.status(401).json({ message: "Debes iniciar sesión" });
     }
 
-    const randomCity = randomCityDoc[0].city;
+    // 2️⃣ Verificar que el alojamiento existe
+    const accommodation = await Accommodation.findById(accommodationId);
+    if (!accommodation) {
+      return res.status(404).json({ message: "Alojamiento no encontrado" });
+    }
+
+    // 3️⃣ Buscar al usuario
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // 4️⃣ Evitar duplicados
+    if (user.favorites.includes(accommodationId)) {
+      return res.status(400).json({ message: "Este alojamiento ya está en tus favoritos" });
+    }
+
+    // 5️⃣ Añadir el alojamiento a favoritos y guardar
+    user.favorites.push(accommodationId);
+    await user.save();
+
+    res.status(200).json({ message: "Alojamiento añadido a favoritos", favorites: user.favorites });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al añadir favorito", error });
+  }
+});
+
+router.delete("/favorites/:accommodationId", verifyToken, async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+    const accommodationId = req.params.accommodationId;
+
+    // 1️⃣ Comprobar autenticación
+    if (!userId) {
+      return res.status(401).json({ message: "Debes iniciar sesión" });
+    }
+
+    // 2️⃣ Buscar al usuario
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // 3️⃣ Comprobar si el alojamiento está en favoritos
+    if (!user.favorites.includes(accommodationId)) {
+      return res.status(400).json({ message: "Este alojamiento no está en tus favoritos" });
+    }
+
+    // 4️⃣ Eliminar el alojamiento del array de favoritos
+    user.favorites = user.favorites.filter(
+      (favId) => favId.toString() !== accommodationId
+    );
+
+    await user.save();
+
+    res.status(200).json({ message: "Alojamiento eliminado de favoritos", favorites: user.favorites });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al eliminar favorito", error });
+  }
+});
+
+
+
+
+
+router.get("/randomCity", async (req, res, next) => {
+  try {
+    const cities = await Accommodation.distinct('city', { city: { $ne: null } });
+    if (!cities.length) return res.status(404).json({ message: "No hay alojamientos con ciudad" });
+
+    const randomCity = cities[Math.floor(Math.random() * cities.length)];
     const accommodations = await Accommodation.find({ city: randomCity });
 
     res.json({ city: randomCity, accommodations });
