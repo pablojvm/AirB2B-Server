@@ -42,7 +42,7 @@ router.post("/signup", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
+})
 
 router.post("/login", async(req,res,next) => {
     console.log("Todo Ok")
