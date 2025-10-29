@@ -36,7 +36,7 @@ router.get("/byRating", async (req, res, next) => {
     const accommodations = await Accommodation.aggregate([
       {
         $lookup: {
-          from: "reviews", // nombre de la colección de reviews
+          from: "reviews",
           localField: "_id",
           foreignField: "accommodation",
           as: "reviews"
@@ -48,7 +48,7 @@ router.get("/byRating", async (req, res, next) => {
         }
       },
       {
-        $sort: { avgRating: -1 } // de mayor a menor puntuación
+        $sort: { avgRating: -1 }
       }
     ]);
 
@@ -194,6 +194,7 @@ router.post("/", async (req, res, next) => {
   try {
     const response = await Accommodation.create({
       title: req.body.title,
+      maxpeople: req.body.maxpeople,
       type: req.body.type,
       beds: req.body.beds,
       bedrooms: req.body.bedrooms,

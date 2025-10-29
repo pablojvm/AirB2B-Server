@@ -3,24 +3,18 @@ const { Schema, model } = require("mongoose");
 const accommodationSchema = new Schema(
   {
     title: String,
+    maxPeople: Number,
     type: {
       type: String,
       enum: [
         "Apartment",
         "House",
-        "Villa",
-        "Cottage",
-        "Studio",
-        "Loft",
-        "Bungalow",
         "Cabin",
+        "Bungalow",
         "Guesthouse",
-        "Hostel",
         "Hotel",
-        "Resort",
         "Bed and Breakfast",
         "Farm stay",
-        "Tiny house",
         "Boat",
         "Treehouse",
         "Castle",
