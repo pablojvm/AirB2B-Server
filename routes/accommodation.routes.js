@@ -190,8 +190,9 @@ router.get("/:accommodationId", async(req, res,next) => {
   }
 })
 
-router.post("/", async (req, res, next) => {
+router.post("/", verifyToken, async (req, res, next) => {
   try {
+    const ownerId = req.payload._id
     const response = await Accommodation.create({
       title: req.body.title,
       maxpeople: req.body.maxpeople,
@@ -199,10 +200,9 @@ router.post("/", async (req, res, next) => {
       beds: req.body.beds,
       bedrooms: req.body.bedrooms,
       bathrooms: req.body.bathrooms,
-      livingroom: req.body.livingroom,
       services: req.body.services,
       cost: req.body.cost,
-      owner: req.body.owner,
+      owner: ownerId,
       photos: req.body.photos,
       description: req.body.description,
       location: req.body.location,

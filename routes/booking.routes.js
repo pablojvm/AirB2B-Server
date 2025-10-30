@@ -7,13 +7,10 @@ router.post("/", async (req, res, next) => {
   try {
     const { accommodationId, userId, start, end } = req.body;
 
-    // Validar que el alojamiento existe
     const accommodation = await Accommodation.findById(accommodationId);
     if (!accommodation) {
       return res.status(404).json({ message: "Accommodation not found" });
     }
-
-    // Crear el booking
     const newBooking = await Booking.create({
       accommodation: accommodationId,
       user: userId,
@@ -21,11 +18,20 @@ router.post("/", async (req, res, next) => {
       end,
       status: "pending"
     });
-
     res.status(201).json(newBooking);
   } catch (err) {
     next(err);
   }
 });
+
+router.get("/trips", verifyToken, async(req,res,next) => {
+  try{
+    const userId = req.payload._id;
+    const response = await Booking.countDocuments({ user: userId });
+    res.json(response)
+  }catch (error) {
+    next(error);
+  }
+})
 
 module.exports = router
