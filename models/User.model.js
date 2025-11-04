@@ -20,8 +20,7 @@ const userSchema = new Schema(
       trim: true
     },
     photo: {
-      type: String,
-      default: "https://res.cloudinary.com/dinaognbb/image/upload/v1749822599/fotouser_f9vrur.png",
+      type: String
     },
     favorites: [
     {

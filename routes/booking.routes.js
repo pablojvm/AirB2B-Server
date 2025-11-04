@@ -24,14 +24,35 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.get("/trips", verifyToken, async(req,res,next) => {
-  try{
-    const userId = req.payload._id;
-    const response = await Booking.countDocuments({ user: userId });
-    res.json(response)
-  }catch (error) {
-    next(error);
+router.get("/trips", verifyToken, async (req, res, next) => {
+  try {
+    const userId = req.payload?._id || req.user?._id
+    if (!userId) return res.status(401).json({ message: "Debes iniciar sesión" })
+    const bookings = await Booking.find({ user: userId })
+      .populate({
+        path: "accommodation",
+        select: "title photos cost owner",
+        populate: { path: "owner", select: "username photo" }
+      })
+      .sort({ createdAt: -1 })
+
+    const count = bookings.length
+    const accommodationsRaw = bookings.map((b) => b.accommodation).filter(Boolean)
+    const accommodationsById = new Map();
+    for (const a of accommodationsRaw) {
+      accommodationsById.set(String(a._id), a);
+    }
+    const uniqueAccommodations = Array.from(accommodationsById.values())
+    res.json({
+      count,
+      accommodations: uniqueAccommodations,
+      bookings
+    })
+  } catch (err) {
+    console.error("Error fetching trips:", err)
+    res.status(500).json({ message: "Error al obtener reservas" })
   }
-})
+});
+
 
 module.exports = router

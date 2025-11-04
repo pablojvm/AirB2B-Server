@@ -168,10 +168,10 @@ router.get("/randomCity", async (req, res, next) => {
 });
 
 
-router.get("/own", async(req, res,next) => {
-   const objectId  = req.query.objectId
+router.get("/own", verifyToken, async (req, res, next) => {
   try {
-    const response = await Accommodation.find({owner:objectId})
+    const userId = req.payload._id
+    const response = await Accommodation.find({ owner: userId })
     res.json(response)
   } catch (error) {
     next(error)
@@ -210,7 +210,7 @@ router.post("/", verifyToken, async (req, res, next) => {
     });
     res.json(response).send("Anuncio creado con exito");
   } catch (error) {
-    next(error);
+    next(error)
   }
 });
 
