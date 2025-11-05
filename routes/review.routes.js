@@ -1,10 +1,8 @@
 const router = require("express").Router();
-
 const Review = require("../models/Review.model")
-
 const verifyToken = require("../middlewares/auth.middlewares")
 
-router.post(("/"), async(req, res,next) => {
+router.post(("/"), verifyToken, async(req, res,next) => {
   try {
     const response = await Review.create({
       title: req.body.title,
@@ -44,14 +42,14 @@ router.delete("/:reviewId", verifyToken, async (req, res, next) => {
 router.get("/own", verifyToken, async (req, res, next) => {
   const userId = req.payload._id
   try {
-    const response = await Review.find({ creator: userId }).populate("ad", "title");
+    const response = await Review.find({ creator: userId }).populate("accommodation", "title");
     res.json(response);
   } catch (error) {
     next(error);
   }
 });
 
-router.get("/:accommodationId", async(req, res,next) => {
+router.get("/:reviewId", async(req, res,next) => {
   console.log(req.params)
   try {
     const { accommodationId } = req.params;
