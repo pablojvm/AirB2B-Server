@@ -12,7 +12,7 @@ const paymentSchema = new mongoose.Schema({
   },
   product: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Product"
+    ref: "Booking"
   },
   buyer: {
     type: mongoose.Schema.Types.ObjectId,

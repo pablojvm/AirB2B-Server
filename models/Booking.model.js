@@ -20,6 +20,14 @@ const bookingSchema = new Schema(
       type: Date,
       required: true
     },
+    guests: {
+      type: Number,
+      required: true
+    },
+    cost: {
+      type: Number,
+      required: true
+    },
     status: {
       type: String,
       enum: ["confirmed", "pending", "cancelled"],

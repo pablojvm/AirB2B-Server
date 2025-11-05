@@ -60,9 +60,9 @@ router.get("/byRating", async (req, res, next) => {
 
 router.get("/favorites", verifyToken, async (req, res, next) => {
   try {
-    if (!req.user?._id) return res.status(401).json({ message: "Debes iniciar sesión" });
+    // if (!req.user?._id) return res.status(401).json({ message: "Debes iniciar sesión" });
 
-    const user = await User.findById(req.user._id).select("favorites");
+    const user = await User.findById(req.payload._id).select("favorites");
     if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
     const favoritesIds = user.favorites || [];
@@ -78,32 +78,24 @@ router.get("/favorites", verifyToken, async (req, res, next) => {
 
 router.post("/favorites/:accommodationId", verifyToken, async (req, res, next) => {
   try {
-    const userId = req.user?._id;
+    const userId = req.payload._id;
     const accommodationId = req.params.accommodationId;
 
-    // 1️⃣ Comprobar si el usuario está autenticado
     if (!userId) {
       return res.status(401).json({ message: "Debes iniciar sesión" });
     }
-
-    // 2️⃣ Verificar que el alojamiento existe
     const accommodation = await Accommodation.findById(accommodationId);
     if (!accommodation) {
       return res.status(404).json({ message: "Alojamiento no encontrado" });
     }
-
-    // 3️⃣ Buscar al usuario
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    // 4️⃣ Evitar duplicados
     if (user.favorites.includes(accommodationId)) {
       return res.status(400).json({ message: "Este alojamiento ya está en tus favoritos" });
     }
-
-    // 5️⃣ Añadir el alojamiento a favoritos y guardar
     user.favorites.push(accommodationId);
     await user.save();
 
@@ -116,26 +108,22 @@ router.post("/favorites/:accommodationId", verifyToken, async (req, res, next) =
 
 router.delete("/favorites/:accommodationId", verifyToken, async (req, res, next) => {
   try {
-    const userId = req.user?._id;
+    const userId = req.payload._id;
     const accommodationId = req.params.accommodationId;
 
-    // 1️⃣ Comprobar autenticación
     if (!userId) {
       return res.status(401).json({ message: "Debes iniciar sesión" });
     }
 
-    // 2️⃣ Buscar al usuario
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    // 3️⃣ Comprobar si el alojamiento está en favoritos
     if (!user.favorites.includes(accommodationId)) {
       return res.status(400).json({ message: "Este alojamiento no está en tus favoritos" });
     }
 
-    // 4️⃣ Eliminar el alojamiento del array de favoritos
     user.favorites = user.favorites.filter(
       (favId) => favId.toString() !== accommodationId
     );
