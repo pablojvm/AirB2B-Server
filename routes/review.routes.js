@@ -49,16 +49,22 @@ router.get("/own", verifyToken, async (req, res, next) => {
   }
 });
 
-router.get("/:reviewId", async(req, res,next) => {
-  console.log(req.params)
+router.get("/:accommodationId", async (req, res, next) => {
   try {
     const { accommodationId } = req.params;
-    const response = await Review.find({ accommodation: accommodationId })
-    .populate("creator")
-    res.json(response)
+
+    if (!accommodationId) {
+      return res.status(400).json({ message: "accommodationId is required" });
+    }
+
+    const reviews = await Review.find({ accommodation: accommodationId })
+      .populate("creator", "username photo") // trae solo username y photo
+      .sort({ createdAt: -1 }); // más recientes primero
+
+    return res.json(reviews);
   } catch (error) {
-    next(error)
+    next(error);
   }
-})
+});
 
 module.exports = router

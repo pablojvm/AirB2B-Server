@@ -106,6 +106,31 @@ router.post("/favorites/:accommodationId", verifyToken, async (req, res, next) =
   }
 });
 
+router.get("/", async (req, res, next) => {
+  try {
+    const { city, q } = req.query;
+
+    if (city) {
+      const cityTrimmed = String(city).trim();
+      const regex = new RegExp(`^${cityTrimmed}$`, "i");
+      const accommodations = await Accommodation.find({ city: regex }).limit(200);
+      return res.json(accommodations);
+    }
+    if (q) {
+      const qTrimmed = String(q).trim();
+      const regex = new RegExp(qTrimmed, "i");
+      const accommodations = await Accommodation.find({
+        $or: [{ title: regex }, { city: regex }, { description: regex }],
+      }).limit(200);
+      return res.json(accommodations);
+    }
+    const all = await Accommodation.find().limit(200);
+    res.json(all);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.delete("/favorites/:accommodationId", verifyToken, async (req, res, next) => {
   try {
     const userId = req.payload._id;
