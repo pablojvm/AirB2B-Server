@@ -1,8 +1,7 @@
-
 const mongoose = require("mongoose");
 
 const paymentSchema = new mongoose.Schema({
-  price: Number, 
+  amount: Number, 
   paymentIntentId: String, 
   clientSecret: String, 
   status: {

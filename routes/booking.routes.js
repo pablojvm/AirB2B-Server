@@ -124,7 +124,7 @@ router.get("/lastTrips", verifyToken, async (req, res, next) => {
   }
 });
 
-router.get("/:bookingId", async (req, res) => {
+router.get("/:bookingId", async (req, res, next) => {
   try {
     const { bookingId } = req.params;
     console.log(bookingId)
@@ -140,5 +140,14 @@ router.get("/:bookingId", async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
+// router.patch("/:bookingId", async(req,res,next) => {
+//   try{
+//     const { bookingId } = req.params
+//     const response = await Booking.findByIdAndUpdate(bookingId)
+
+//   }
+// })
 
 module.exports = router;
