@@ -11,7 +11,7 @@ router.get("/popular", async (req, res, next) => {
       { $unwind: "$accommodation" },
       { $group: { _id: "$accommodation", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
-      { $limit: 5 },
+      { $limit: 12 },
       {
         $lookup: {
           from: "accommodations",
