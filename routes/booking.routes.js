@@ -61,7 +61,10 @@ router.get("/tripsPending", verifyToken, async (req, res, next) => {
   try {
     const userId = req.payload?._id || req.user?._id;
     if (!userId) return res.status(401).json({ message: "Debes iniciar sesión" });
-    const bookings = await Booking.find({ user: userId })
+
+    // Traer solo reservas cuya fecha 'end' sea >= ahora
+    const now = new Date();
+    const bookings = await Booking.find({ user: userId, end: { $gte: now } })
       .populate({
         path: "accommodation",
         select: "title photos cost owner",
@@ -89,19 +92,18 @@ router.get("/tripsPending", verifyToken, async (req, res, next) => {
   }
 });
 
+
 router.get("/lastTrips", verifyToken, async (req, res, next) => {
   try {
     const userId = req.payload?._id || req.user?._id;
     if (!userId) return res.status(401).json({ message: "Debes iniciar sesión" });
 
-    // Trae solo las reservas cuyo end (fecha de salida) sea anterior a ahora
     const bookings = await Booking.find({ user: userId, end: { $lt: new Date() } })
       .populate({
         path: "accommodation",
         select: "title photos cost owner",
         populate: { path: "owner", select: "username photo" },
       })
-      // Ordena por fecha de salida más reciente primero (los viajes más recientes en el pasado)
       .sort({ end: -1 });
 
     const count = bookings.length;
@@ -140,14 +142,5 @@ router.get("/:bookingId", async (req, res, next) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
-
-
-// router.patch("/:bookingId", async(req,res,next) => {
-//   try{
-//     const { bookingId } = req.params
-//     const response = await Booking.findByIdAndUpdate(bookingId)
-
-//   }
-// })
 
 module.exports = router;

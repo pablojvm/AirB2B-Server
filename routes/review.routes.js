@@ -58,13 +58,28 @@ router.get("/:accommodationId", async (req, res, next) => {
     }
 
     const reviews = await Review.find({ accommodation: accommodationId })
-      .populate("creator", "username photo") // trae solo username y photo
-      .sort({ createdAt: -1 }); // más recientes primero
+      .populate("creator", "username photo")
+      .sort({ createdAt: -1 });
 
-    return res.json(reviews);
+    const reviewsCount = reviews.length;
+    const avgStars =
+      reviewsCount === 0
+        ? 0
+        : Number(
+            (
+              reviews.reduce((sum, r) => sum + (r.stars || 0), 0) / reviewsCount
+            ).toFixed(1)
+          );
+
+    return res.json({
+      reviews,
+      avgStars,
+      reviewsCount,
+    });
   } catch (error) {
     next(error);
   }
 });
+
 
 module.exports = router

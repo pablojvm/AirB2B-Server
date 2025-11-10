@@ -72,12 +72,11 @@ const accommodationSchema = new Schema(
     description: String,
     location: {
       type: { type: String, default: "Point" },
-      coordinates: [Number], // [longitud, latitud]
+      coordinates: [Number],
     },
     city: String,
   },
   {
-    // this second object adds extra properties: `createdAt` and `updatedAt`
     timestamps: true,
   }
 );

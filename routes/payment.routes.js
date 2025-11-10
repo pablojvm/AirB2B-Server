@@ -44,7 +44,6 @@ router.post("/create-payment-intent", verifyToken, async (req, res, next) => {
       return res.status(400).json({ message: "paymentIntentId is required" });
     }
 
-    // Actualiza el payment y popula el product -> accommodation -> owner
     const payment = await Payment.findOneAndUpdate(
       { paymentIntentId },
       { status: "succeeded", clientSecret: clientSecret || undefined },
@@ -55,15 +54,12 @@ router.post("/create-payment-intent", verifyToken, async (req, res, next) => {
       return res.status(404).json({ message: "Payment not found" });
     }
 
-    // 2) seguridad: comprobar que el buyer coincida con el usuario autenticado
     if (payment.buyer && payment.buyer.toString() !== userId) {
       return res.status(403).json({ message: "No autorizado para actualizar este pago" });
     }
 
-    // 3) si el payment tiene asociado un product (booking), actualizar su estado
     let booking = null;
     if (payment.product) {
-      // Si payment.product está poblado, puede ser objeto; si no, puede ser id.
       const bookingId = payment.product._id || payment.product;
 
       booking = await Booking.findByIdAndUpdate(
