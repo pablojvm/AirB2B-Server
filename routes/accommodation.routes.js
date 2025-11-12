@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Accommodation = require("../models/Accommodation.model");
 const User = require ("../models/User.model")
 const Booking = require("../models/Booking.model")
+const Review = require("../models/Review.model")
 const verifyToken = require("../middlewares/auth.middlewares")
 
 
@@ -60,7 +61,6 @@ router.get("/byRating", async (req, res, next) => {
 
 router.get("/favorites", verifyToken, async (req, res, next) => {
   try {
-    // if (!req.user?._id) return res.status(401).json({ message: "Debes iniciar sesión" });
 
     const user = await User.findById(req.payload._id).select("favorites");
     if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
@@ -162,10 +162,6 @@ router.delete("/favorites/:accommodationId", verifyToken, async (req, res, next)
   }
 });
 
-
-
-
-
 router.get("/randomCity", async (req, res, next) => {
   try {
     const cities = await Accommodation.distinct('city', { city: { $ne: null } });
@@ -180,7 +176,6 @@ router.get("/randomCity", async (req, res, next) => {
   }
 });
 
-
 router.get("/own", verifyToken, async (req, res, next) => {
   try {
     const userId = req.payload._id
@@ -188,6 +183,30 @@ router.get("/own", verifyToken, async (req, res, next) => {
     res.json(response)
   } catch (error) {
     next(error)
+  }
+});
+
+router.get("/with-reviews", async (req, res) => {
+  try {
+    const { city } = req.query;
+    if (!city) return res.status(400).json({ message: "Se requiere ciudad" });
+
+    const accommodations = await Accommodation.find({ city });
+    const results = await Promise.all(
+      accommodations.map(async (acc) => {
+        const reviews = await Review.find({ accommodation: acc._id });
+        const avgStars =
+          reviews.length > 0
+            ? reviews.reduce((sum, r) => sum + r.stars, 0) / reviews.length
+            : null;
+        return { ...acc.toObject(), avgStars };
+      })
+    );
+
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener alojamientos con reviews" });
   }
 });
 
